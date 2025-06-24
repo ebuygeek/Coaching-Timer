@@ -418,69 +418,88 @@
     updateTimerDisplay();
   }
 
-  function formatTime(sec) {
-    let m = Math.floor(sec / 60);
-    let s = sec % 60;
-    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+function formatTime(sec) {
+  const negative = sec < 0;
+  sec = Math.abs(sec);
+  let m = Math.floor(sec / 60);
+  let s = sec % 60;
+  return (negative ? "-" : "") + 
+         (m < 10 ? "0" + m : m) + ":" + 
+         (s < 10 ? "0" + s : s);
+}
+
+ function updateTimerDisplay() {
+  timerDisplay.textContent = formatTime(remainingSeconds);
+
+  if (totalSeconds > 0) {
+    progressBar.style.width = ((Math.max(remainingSeconds, 0) / totalSeconds) * 100) + "%";
+  } else {
+    progressBar.style.width = "0%";
   }
 
-  function updateTimerDisplay() {
-    timerDisplay.textContent = formatTime(remainingSeconds);
-    if (totalSeconds > 0) {
-      progressBar.style.width = ((remainingSeconds / totalSeconds) * 100) + "%";
-    } else {
-      progressBar.style.width = "0%";
+if (remainingSeconds <= 0) {
+  // Apply red styles and reduce font size at 0 and below
+  timerDisplay.style.color = "#FF0000";
+  timerDisplay.style.border = "2px solid #FF0000";
+  timerDisplay.style.textShadow = "0 0 6px #FF0000";
+  progressBar.style.backgroundColor = "#FF0000";
+  timerDisplay.style.fontSize = "5em";
+} else {
+
+  // Normal dynamic colour logic
+  let elapsed = totalSeconds - remainingSeconds;
+  let cumulative = 0;
+  let dynamicColor = "white";
+  for (let stage of stages) {
+    cumulative += stage.duration;
+    if (elapsed < cumulative) {
+      dynamicColor = stage.color;
+      break;
     }
-
-    let elapsed = totalSeconds - remainingSeconds;
-    let cumulative = 0;
-    let dynamicColor = "white";
-    for (let stage of stages) {
-      cumulative += stage.duration;
-      if (elapsed < cumulative) {
-        dynamicColor = stage.color;
-        break;
-      }
-    }
-
-    timerDisplay.style.color = dynamicColor;
-    timerDisplay.style.border = "2px solid " + dynamicColor;
-    timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
-    progressBar.style.backgroundColor = dynamicColor;
-
-    // Input fields
-    inputs.connect.style.color = stages[0].color;
-    inputs.outcome.style.color = stages[1].color;
-    inputs.awareness.style.color = stages[2].color;
-    inputs.course.style.color = stages[3].color;
-    inputs.highlights.style.color = stages[4].color;
-
-    // Control buttons
-    [startStopButton, resetButton].forEach(btn => {
-      btn.style.color = themeColor;
-      btn.style.borderColor = themeColor;
-      btn.style.textShadow = "0 0 5px " + themeColor;
-    });
-
-    // Preset buttons are left unchanged (their appearance is fixed inline)
   }
+
+  timerDisplay.style.color = dynamicColor;
+  timerDisplay.style.border = "2px solid " + dynamicColor;
+  timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
+  progressBar.style.backgroundColor = dynamicColor;
+  timerDisplay.style.fontSize = "6em";  // reset to normal
+}
+
+
+  // Update input colours
+  inputs.connect.style.color = stages[0].color;
+  inputs.outcome.style.color = stages[1].color;
+  inputs.awareness.style.color = stages[2].color;
+  inputs.course.style.color = stages[3].color;
+  inputs.highlights.style.color = stages[4].color;
+
+  // Control buttons
+  [startStopButton, resetButton].forEach(btn => {
+    btn.style.color = themeColor;
+    btn.style.borderColor = themeColor;
+    btn.style.textShadow = "0 0 5px " + themeColor;
+  });
+}
 
   function startTimer() {
     if (remainingSeconds <= 0) return;
     isRunning = true;
     startStopButton.textContent = "Stop";
     Object.values(inputs).forEach(input => input.disabled = true);
-    timerInterval = setInterval(() => {
-      if (remainingSeconds <= 0) {
-        clearInterval(timerInterval);
-        isRunning = false;
-        startStopButton.textContent = "Start";
-        Object.values(inputs).forEach(input => input.disabled = false);
-        return;
-      }
-      remainingSeconds--;
-      updateTimerDisplay();
-    }, 1000);
+timerInterval = setInterval(() => {
+  remainingSeconds--;
+
+  // If time is negative, set text to red
+  if (remainingSeconds < 0) {
+    timerDisplay.style.color = "#FF0000";
+    timerDisplay.style.border = "2px solid #FF0000";
+    timerDisplay.style.textShadow = "0 0 6px #FF0000";
+    progressBar.style.backgroundColor = "#FF0000";
+  }
+
+  updateTimerDisplay();
+}, 1000);
+
   }
 
   function stopTimer() {
