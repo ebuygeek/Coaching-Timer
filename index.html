@@ -461,6 +461,16 @@ if (remainingSeconds <= 0) {
   timerDisplay.style.border = "2px solid " + dynamicColor;
   timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
   progressBar.style.backgroundColor = dynamicColor;
+
+  // ✅ Highlight only the active stage box
+    stageNames.forEach((name, i) => {
+      const box = document.getElementById("color-box-" + name);
+      if (stages[i].color === dynamicColor) {
+        box.style.boxShadow = "0 0 8px " + stages[i].color;
+      } else {
+        box.style.boxShadow = "none";
+      }
+    });
 }
 
 
