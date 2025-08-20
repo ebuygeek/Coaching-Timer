@@ -29,17 +29,18 @@
     
     /* Timer display */
     #timerDisplay {
-      background-color: #000;
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(3.2em, 18.5vw, 6em);
-      padding: 20px;
-      box-sizing: border-box;
-      text-align: center;
-      line-height: 1.2;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: visible;
-    }
+  background-color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(3.2em, 18.5vw, 6em);
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;     /* was: visible */
+  /* optional if you want: text-overflow: clip; */
+}
     
     /* Progress bar */
     #progressBar {
@@ -455,50 +456,65 @@
   }
 
   function updateTimerDisplay() {
-    timerDisplay.textContent = formatTime(remainingSeconds);
+  // Update the main readout
+  timerDisplay.textContent = formatTime(remainingSeconds);
 
-    if (totalSeconds > 0) {
-      progressBar.style.width = ((Math.max(remainingSeconds, 0) / totalSeconds) * 100) + "%";
-    } else {
-      progressBar.style.width = "0%";
-    }
-
-    if (remainingSeconds <= 0) {
-      timerDisplay.style.color = "#FF0000";
-      timerDisplay.style.border = "2px solid #FF0000";
-      timerDisplay.style.textShadow = "0 0 6px #FF0000";
-      progressBar.style.backgroundColor = "#FF0000";
-    } else {
-      let elapsed = totalSeconds - remainingSeconds;
-      let cumulative = 0;
-      let dynamicColor = "white";
-      for (let stage of stages) {
-        cumulative += stage.duration;
-        if (elapsed < cumulative) {
-          dynamicColor = stage.color;
-          break;
-        }
-      }
-      timerDisplay.style.color = dynamicColor;
-      timerDisplay.style.border = "2px solid " + dynamicColor;
-      timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
-      progressBar.style.backgroundColor = dynamicColor;
-    }
-
-    // Update input colours
-    inputs.connect.style.color = stages[0].color;
-    inputs.outcome.style.color = stages[1].color;
-    inputs.awareness.style.color = stages[2].color;
-    inputs.course.style.color = stages[3].color;
-    inputs.highlights.style.color = stages[4].color;
-
-    // Control buttons
-    [startStopButton, resetButton].forEach(btn => {
-      btn.style.color = themeColor;
-      btn.style.borderColor = themeColor;
-      btn.style.textShadow = "0 0 5px " + themeColor;
-    });
+  // Progress bar
+  if (totalSeconds > 0) {
+    progressBar.style.width = ((Math.max(remainingSeconds, 0) / totalSeconds) * 100) + "%";
+  } else {
+    progressBar.style.width = "0%";
   }
+
+  if (remainingSeconds <= 0) {
+    // Overtime: turn red
+    timerDisplay.style.color = "#FF0000";
+    timerDisplay.style.border = "2px solid #FF0000";
+    timerDisplay.style.textShadow = "0 0 6px #FF0000";
+    progressBar.style.backgroundColor = "#FF0000";
+
+    // Desktop-only size nudge so "-mm:ss" fits the box
+    if (window.matchMedia('(min-width: 769px)').matches) {
+      timerDisplay.style.fontSize = 'clamp(3em, 17vw, 5.5em)';
+    }
+  } else {
+    // Normal dynamic colour logic
+    let elapsed = totalSeconds - remainingSeconds;
+    let cumulative = 0;
+    let dynamicColor = "white";
+    for (let stage of stages) {
+      cumulative += stage.duration;
+      if (elapsed < cumulative) {
+        dynamicColor = stage.color;
+        break;
+      }
+    }
+
+    timerDisplay.style.color = dynamicColor;
+    timerDisplay.style.border = "2px solid " + dynamicColor;
+    timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
+    progressBar.style.backgroundColor = dynamicColor;
+
+    // Restore normal desktop size
+    if (window.matchMedia('(min-width: 769px)').matches) {
+      timerDisplay.style.fontSize = 'clamp(3.2em, 18.5vw, 6em)';
+    }
+  }
+
+  // Update input colours
+  inputs.connect.style.color = stages[0].color;
+  inputs.outcome.style.color = stages[1].color;
+  inputs.awareness.style.color = stages[2].color;
+  inputs.course.style.color = stages[3].color;
+  inputs.highlights.style.color = stages[4].color;
+
+  // Control buttons theme
+  [startStopButton, resetButton].forEach(btn => {
+    btn.style.color = themeColor;
+    btn.style.borderColor = themeColor;
+    btn.style.textShadow = "0 0 5px " + themeColor;
+  });
+}
 
   function startTimer() {
     if (remainingSeconds <= 0) return;
