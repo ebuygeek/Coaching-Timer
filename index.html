@@ -654,31 +654,6 @@
   updateTimerDisplay();
 </script>
 
-<!-- Preset override kept if you still need it to force "1 minute" on top button -->
-<script>
-(function(){
-  try {
-    if (typeof presets !== 'undefined') {
-      presets.top = { connect: 1, outcome: 0, awareness: 0, course: 0, highlights: 0 };
-    }
-    var btnTop = document.getElementById('preset-top');
-    if (btnTop) {
-      btnTop.addEventListener('click', function(ev){
-        if (ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-        if (ev && ev.stopPropagation) ev.stopPropagation();
-        if (typeof stopTimer === 'function') stopTimer();
-        var set = function(id, v){
-          var el = (typeof inputs !== 'undefined' && inputs[id]) ? inputs[id] : document.getElementById(id);
-          if (el) el.value = v;
-        };
-        set('connect', 1); set('outcome', 0); set('awareness', 0); set('course', 0); set('highlights', 0);
-        if (typeof recalcTimer === 'function') recalcTimer();
-      }, true); // capture
-    }
-  } catch(e) {}
-})();
-</script>
-
 <!-- NEW: Lightweight script to sync button colour and toggle mute (no positioning math needed) -->
 <script>
 (function(){
