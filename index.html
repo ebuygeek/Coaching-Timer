@@ -428,7 +428,7 @@ function formatTime(sec) {
          (s < 10 ? "0" + s : s);
 }
 
-function updateTimerDisplay() {
+ function updateTimerDisplay() {
   timerDisplay.textContent = formatTime(remainingSeconds);
 
   if (totalSeconds > 0) {
@@ -437,47 +437,32 @@ function updateTimerDisplay() {
     progressBar.style.width = "0%";
   }
 
-  if (remainingSeconds <= 0) {
-    // Apply red styles at 0 and below
-    timerDisplay.style.color = "#FF0000";
-    timerDisplay.style.border = "2px solid #FF0000";
-    timerDisplay.style.textShadow = "0 0 6px #FF0000";
-    progressBar.style.backgroundColor = "#FF0000";
+if (remainingSeconds <= 0) {
+  // Apply red styles and reduce font size at 0 and below
+  timerDisplay.style.color = "#FF0000";
+  timerDisplay.style.border = "2px solid #FF0000";
+  timerDisplay.style.textShadow = "0 0 6px #FF0000";
+  progressBar.style.backgroundColor = "#FF0000";
+} else {
 
-    // No active stage → remove glow from all boxes
-    stageNames.forEach((name) => {
-      const box = document.getElementById("color-box-" + name);
-      box.style.boxShadow = "none";
-    });
-
-  } else {
-    // Normal dynamic colour logic
-    let elapsed = totalSeconds - remainingSeconds;
-    let cumulative = 0;
-    let dynamicColor = "white";
-    for (let stage of stages) {
-      cumulative += stage.duration;
-      if (elapsed < cumulative) {
-        dynamicColor = stage.color;
-        break;
-      }
+  // Normal dynamic colour logic
+  let elapsed = totalSeconds - remainingSeconds;
+  let cumulative = 0;
+  let dynamicColor = "white";
+  for (let stage of stages) {
+    cumulative += stage.duration;
+    if (elapsed < cumulative) {
+      dynamicColor = stage.color;
+      break;
     }
-
-    timerDisplay.style.color = dynamicColor;
-    timerDisplay.style.border = "2px solid " + dynamicColor;
-    timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
-    progressBar.style.backgroundColor = dynamicColor;
-
-    // ✅ Highlight only the active stage box
-    stageNames.forEach((name, i) => {
-      const box = document.getElementById("color-box-" + name);
-      if (stages[i].color === dynamicColor) {
-        box.style.boxShadow = "0 0 8px " + stages[i].color;
-      } else {
-        box.style.boxShadow = "none";
-      }
-    });
   }
+
+  timerDisplay.style.color = dynamicColor;
+  timerDisplay.style.border = "2px solid " + dynamicColor;
+  timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
+  progressBar.style.backgroundColor = dynamicColor;
+}
+
 
   // Update input colours
   inputs.connect.style.color = stages[0].color;
