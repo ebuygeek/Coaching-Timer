@@ -366,16 +366,16 @@
     </div>
   </div>
   
-  <script>
+    <!-- Alarm audio: place alarm.mp3 next to this HTML -->
+  <audio id="endAlarm" preload="auto" src="alarm.mp3"></audio>
+
+<script>
   let timerInterval = null;
   let isRunning = false;
   let totalSeconds = 0;
   let remainingSeconds = 0;
 
-  
-  // Alarm state
-  let alarmPlayed = false;
-// Set pink as default theme
+  // Set pink as default theme
   let themeColor = "#FF4DAB";
 
   const inputs = {
@@ -410,8 +410,9 @@
   const resetButton = document.getElementById('resetButton');
 
   
-  // Alarm element
+  // Alarm element and state
   const endAlarm = document.getElementById('endAlarm');
+  let alarmPlayed = false;
 function recalcTimer() {
     stages[0].duration = (parseInt(inputs.connect.value, 10) || 0) * 60;
     stages[1].duration = (parseInt(inputs.outcome.value, 10) || 0) * 60;
@@ -489,7 +490,7 @@ if (remainingSeconds <= 0) {
   function startTimer() {
     if (remainingSeconds <= 0) return;
     
-    // Reset one-shot flag and prime audio on user gesture (Start click)
+    // Reset alarm flag and prime audio on Start (user gesture)
     alarmPlayed = false;
     try {
       var primed = endAlarm && endAlarm.play && endAlarm.play();
@@ -504,14 +505,14 @@ timerInterval = setInterval(() => {
   remainingSeconds--;
 
   
-  // Play alarm once at 0
-  if (remainingSeconds === 0 && !alarmPlayed) {
-    alarmPlayed = true;
-    try {
-      var p = endAlarm && endAlarm.play && endAlarm.play();
-      if (p && typeof p.catch === 'function') { p.catch(function(){}); }
-    } catch(e) {}
-  }
+        // Play alarm once at 0
+        if (remainingSeconds === 0 && !alarmPlayed) {
+          alarmPlayed = true;
+          try {
+            var p = endAlarm && endAlarm.play && endAlarm.play();
+            if (p && typeof p.catch === 'function') { p.catch(function(){}); }
+          } catch(e) {}
+        }
 // If time is negative, set text to red
   if (remainingSeconds < 0) {
     timerDisplay.style.color = "#FF0000";
@@ -535,7 +536,7 @@ timerInterval = setInterval(() => {
   function resetTimer() {
     stopTimer();
     
-    // Reset alarm audio/flag on reset
+    // Reset alarm audio/flag
     try { if (endAlarm) { endAlarm.pause(); endAlarm.currentTime = 0; } } catch(e) {}
     alarmPlayed = false;
 recalcTimer();
@@ -645,8 +646,5 @@ recalcTimer();
   shiftToTheme(themeColor);
   updateTimerDisplay();
 </script>
-  
-  <!-- Alarm audio: place alarm.mp3 next to this HTML -->
-  <audio id="endAlarm" preload="auto" src="alarm.mp3"></audio>
 </body>
 </html>
