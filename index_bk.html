@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <!-- Mobile optimization -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech That Cares COACH Model Timer</title>
+  <!-- Digital fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* Overall page styling */
+    body {
+      background-color: #000;
+      color: #ff0000;  /* Not used for sub-timer colors; just the body text color */
+      font-family: 'Press Start 2P', monospace;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    /* Timer container */
+    #timerContainer {
+      position: relative;
+      max-width: 400px;
+      margin: 0 auto 40px auto;
+      box-sizing: border-box;
+    }
+    
+    /* Timer display */
+ #timerDisplay {
+  background-color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(3.2em, 18.5vw, 6em); /* larger than before, still scales down */
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: visible;
+}
+    
+    /* Progress bar */
+    #progressBar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 10px;
+      width: 100%;
+      transition: width 0.5s linear, background-color 0.5s linear;
+    }
+    
+    /* Sub-timers container */
+    #subTimers {
+      max-width: 400px;
+      margin: 0 auto 20px auto;
+      width: 100%;
+    }
+    
+    /* Table for sub-timer rows */
+    #subTimers table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #subTimers td {
+      vertical-align: middle;
+      padding: 8px;
+      font-size: 1em;
+    }
+    /* Left column: contains color box and sub-timer title */
+    #subTimers td.left {
+      text-align: left;
+    }
+    /* Right column: numeric input */
+    #subTimers td.right {
+      text-align: right;
+    }
+    
+    /* Color boxes for sub-timers */
+    .color-box {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+      cursor: pointer;
+      box-shadow: 0 0 8px #008000; /* default (CONNECT=green); updated dynamically */
+    }
+    .color-picker {
+      display: none;
+    }
+    .sub-title {
+      font-weight: bold;
+    }
+    
+    /* Numeric input styling */
+    input[type="number"] {
+      width: 60px;
+      font-size: 1em;
+      text-align: center;
+      padding-left: 5px;
+      background-color: #000;
+      border: none;
+    }
+    /* Spinner arrows styling for WebKit browsers */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: inner-spin-button;
+      background-color: currentColor;
+      border: 1px solid currentColor;
+    }
+    
+    /* Main control buttons */
+    .main-button {
+      font-family: 'Press Start 2P', monospace;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      min-width: 140px;
+      background-color: #000;
+      border: 2px solid;
+      text-shadow: 0 0 5px;
+    }
+    .control-buttons {
+      margin: 0px auto 40px auto;
+    }
+    
+    /* Preset wrapper */
+    #presetWrapper {
+      max-width: 400px;
+      margin: 20px auto 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    /* Theme presets column */
+    #themePresetsColumn {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .theme-box {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      border: none;
+      background-color: #008000; /* default */
+      box-shadow: 0 0 8px #008000;
+    }
+    
+    /* Preset controller container */
+    #presetControllerContainer {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #presetContainer {
+      margin: 0 auto;
+    }
+    #presetContainer table {
+      margin: 0;
+      border-collapse: collapse;
+      width: 200px;
+      height: 200px;
+      table-layout: fixed;
+    }
+    #presetContainer td {
+      text-align: center;
+      vertical-align: middle;
+    }
+    /* Preset buttons: fixed appearance (black background, fixed colored ring/text/glow) */
+    .preset {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      border-radius: 50%;
+      background: #000; /* always black */
+      /* Their text, border, and glow will be set inline and remain constant */
+      color: inherit;
+      border: 2px solid;
+      cursor: pointer;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1em;
+      text-align: center;
+      white-space: nowrap;
+      text-shadow: 0 0 5px;
+      box-shadow: 0 0 8px;
+    }
+    
+    /* Mobile optimization */
+    @media (max-width: 480px) {
+      #progressBar {
+        height: 8px;
+      }
+      .main-button {
+        padding: 8px 16px;
+        margin: 10px 15px;
+        font-size: 0.8em;
+        min-width: 100px;
+      }
+      .control-buttons {
+        margin: 0px auto 25px auto;
+      }
+      #subTimers td {
+        padding: 4px;
+        font-size: 0.9em;
+      }
+      input[type="number"] {
+        width: 50px;
+        padding-left: 5px;
+      }
+      .color-box {
+        width: 18px;
+        height: 18px;
+      }
+      #presetWrapper {
+        flex-direction: row;
+        gap: 10px;
+      }
+      #presetContainer table {
+        width: 160px;
+        height: 160px;
+      }
+      .preset {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 0.8em;
+      }
+      #themePresetsColumn .theme-box {
+        width: 35px;
+        height: 35px;
+        box-shadow: 0 0 6px;
+      }
+    }
+  </style>
+<link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+<link rel="shortcut icon" href="/favicon/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Coach Time" />
+<link rel="manifest" href="/favicon/site.webmanifest" />
+</head>
+<body>
+  <!-- Timer container -->
+  <div id="timerContainer">
+    <div id="timerDisplay">60:00</div>
+    <div id="progressBar"></div>
+  </div>
+  
+  <!-- Sub-timer section -->
+  <div id="subTimers">
+    <table>
+      <tr>
+        <td class="left">
+          <div class="color-box" id="color-box-connect" style="background: #008000;"></div>
+          <span class="sub-title" id="sub-title-connect">CONNECT</span>
+          <input type="color" id="color-picker-connect" class="color-picker" value="#008000">
+        </td>
+        <td class="right">
+          <input type="number" id="connect" value="5" min="0">
+        </td>
+      </tr>
+      <tr>
+        <td class="left">
+          <div class="color-box" id="color-box-outcome" style="background: #FFFF00;"></div>
+          <span class="sub-title" id="sub-title-outcome">OUTCOME</span>
+          <input type="color" id="color-picker-outcome" class="color-picker" value="#FFFF00">
+        </td>
+        <td class="right">
+          <input type="number" id="outcome" value="10" min="0">
+        </td>
+      </tr>
+      <tr>
+        <td class="left">
+          <div class="color-box" id="color-box-awareness" style="background: #FFA500;"></div>
+          <span class="sub-title" id="sub-title-awareness">AWARENESS</span>
+          <input type="color" id="color-picker-awareness" class="color-picker" value="#FFA500">
+        </td>
+        <td class="right">
+          <input type="number" id="awareness" value="30" min="0">
+        </td>
+      </tr>
+      <tr>
+        <td class="left">
+          <div class="color-box" id="color-box-course" style="background: #FF4DAB;"></div>
+          <span class="sub-title" id="sub-title-course">COURSE</span>
+          <input type="color" id="color-picker-course" class="color-picker" value="#FF4DAB">
+        </td>
+        <td class="right">
+          <input type="number" id="course" value="10" min="0">
+        </td>
+      </tr>
+      <tr>
+        <td class="left">
+          <div class="color-box" id="color-box-highlights" style="background: #1F51FF;"></div>
+          <span class="sub-title" id="sub-title-highlights">HIGHLIGHTS</span>
+          <input type="color" id="color-picker-highlights" class="color-picker" value="#1F51FF">
+        </td>
+        <td class="right">
+          <input type="number" id="highlights" value="5" min="0">
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- Main control buttons -->
+  <div class="control-buttons">
+    <button class="main-button" id="startStopButton">Start</button>
+    <button class="main-button" id="resetButton">Reset</button>
+  </div>
+  
+  <!-- Preset section wrapper -->
+  <div id="presetWrapper">
+    <!-- Theme Presets Column -->
+    <div id="themePresetsColumn">
+      <div class="theme-box" data-theme="#008000" style="background-color: #008000; box-shadow: 0 0 8px #008000;"></div>
+      <div class="theme-box" data-theme="#1F51FF" style="background-color: #1F51FF; box-shadow: 0 0 8px #1F51FF;"></div>
+      <div class="theme-box" data-theme="#FF4DAB" style="background-color: #FF4DAB; box-shadow: 0 0 8px #FF4DAB;"></div>
+      <div class="theme-box" data-theme="#FFA500" style="background-color: #FFA500; box-shadow: 0 0 8px #FFA500;"></div>
+    </div>
+    <!-- Preset Controller Container -->
+    <div id="presetControllerContainer">
+      <div id="presetContainer">
+        <table>
+          <tr>
+            <td></td>
+            <!-- 15 Button: Blue (#1F51FF) -->
+            <td>
+              <button class="preset" id="preset-top" data-theme="#1F51FF" style="background-color: #000; color: #1F51FF; border-color: #1F51FF; box-shadow: 0 0 8px #1F51FF;">
+                15
+              </button>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <!-- 30 Button: Green (#008000) -->
+            <td>
+              <button class="preset" id="preset-left" data-theme="#008000" style="background-color: #000; color: #008000; border-color: #008000; box-shadow: 0 0 8px #008000;">
+                30
+              </button>
+            </td>
+            <td></td>
+            <!-- 45 Button: Orange (#FFA500) -->
+            <td>
+              <button class="preset" id="preset-right" data-theme="#FFA500" style="background-color: #000; color: #FFA500; border-color: #FFA500; box-shadow: 0 0 8px #FFA500;">
+                45
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <!-- 60 Button: Pink (#FF4DAB) -->
+            <td>
+              <button class="preset" id="preset-bottom" data-theme="#FF4DAB" style="background-color: #000; color: #FF4DAB; border-color: #FF4DAB; box-shadow: 0 0 8px #FF4DAB;">
+                60
+              </button>
+            </td>
+            <td></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+  let timerInterval = null;
+  let isRunning = false;
+  let totalSeconds = 0;
+  let remainingSeconds = 0;
+
+  // Set pink as default theme
+  let themeColor = "#FF4DAB";
+
+  const inputs = {
+    connect: document.getElementById('connect'),
+    outcome: document.getElementById('outcome'),
+    awareness: document.getElementById('awareness'),
+    course: document.getElementById('course'),
+    highlights: document.getElementById('highlights')
+  };
+
+  const subTitles = {
+    connect: document.getElementById("sub-title-connect"),
+    outcome: document.getElementById("sub-title-outcome"),
+    awareness: document.getElementById("sub-title-awareness"),
+    course: document.getElementById("sub-title-course"),
+    highlights: document.getElementById("sub-title-highlights")
+  };
+
+  const defaultOrder = ["#008000", "#FFFF00", "#FFA500", "#FF4DAB", "#1F51FF"];
+
+  let stages = [
+    { name: "CONNECT", duration: 0, color: defaultOrder[0] },
+    { name: "OUTCOME", duration: 0, color: defaultOrder[1] },
+    { name: "AWARENESS", duration: 0, color: defaultOrder[2] },
+    { name: "COURSE", duration: 0, color: defaultOrder[3] },
+    { name: "HIGHLIGHTS", duration: 0, color: defaultOrder[4] }
+  ];
+
+  const timerDisplay = document.getElementById('timerDisplay');
+  const progressBar = document.getElementById('progressBar');
+  const startStopButton = document.getElementById('startStopButton');
+  const resetButton = document.getElementById('resetButton');
+
+  function recalcTimer() {
+    stages[0].duration = (parseInt(inputs.connect.value, 10) || 0) * 60;
+    stages[1].duration = (parseInt(inputs.outcome.value, 10) || 0) * 60;
+    stages[2].duration = (parseInt(inputs.awareness.value, 10) || 0) * 60;
+    stages[3].duration = (parseInt(inputs.course.value, 10) || 0) * 60;
+    stages[4].duration = (parseInt(inputs.highlights.value, 10) || 0) * 60;
+
+    totalSeconds = stages.reduce((sum, st) => sum + st.duration, 0);
+    remainingSeconds = totalSeconds;
+    updateTimerDisplay();
+  }
+
+function formatTime(sec) {
+  const negative = sec < 0;
+  sec = Math.abs(sec);
+  let m = Math.floor(sec / 60);
+  let s = sec % 60;
+  return (negative ? "-" : "") + 
+         (m < 10 ? "0" + m : m) + ":" + 
+         (s < 10 ? "0" + s : s);
+}
+
+ function updateTimerDisplay() {
+  timerDisplay.textContent = formatTime(remainingSeconds);
+
+  if (totalSeconds > 0) {
+    progressBar.style.width = ((Math.max(remainingSeconds, 0) / totalSeconds) * 100) + "%";
+  } else {
+    progressBar.style.width = "0%";
+  }
+
+if (remainingSeconds <= 0) {
+  // Apply red styles and reduce font size at 0 and below
+  timerDisplay.style.color = "#FF0000";
+  timerDisplay.style.border = "2px solid #FF0000";
+  timerDisplay.style.textShadow = "0 0 6px #FF0000";
+  progressBar.style.backgroundColor = "#FF0000";
+} else {
+
+  // Normal dynamic colour logic
+  let elapsed = totalSeconds - remainingSeconds;
+  let cumulative = 0;
+  let dynamicColor = "white";
+  for (let stage of stages) {
+    cumulative += stage.duration;
+    if (elapsed < cumulative) {
+      dynamicColor = stage.color;
+      break;
+    }
+  }
+
+  timerDisplay.style.color = dynamicColor;
+  timerDisplay.style.border = "2px solid " + dynamicColor;
+  timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
+  progressBar.style.backgroundColor = dynamicColor;
+
+  // While running: only the active stage glows. When stopped: restore all glows.
+if (isRunning) {
+  let elapsedNow = totalSeconds - remainingSeconds;
+  let cum = 0, activeIndex = -1;
+  for (let i = 0; i < stages.length; i++) {
+    cum += stages[i].duration;
+    if (elapsedNow < cum) { activeIndex = i; break; }
+  }
+  stageNames.forEach((name, i) => {
+    const box = document.getElementById("color-box-" + name);
+    box.style.boxShadow = (i === activeIndex) ? ("0 0 8px " + stages[i].color) : "none";
+  });
+} else {
+  // Not running → keep original look (all boxes glow with their colour)
+  stageNames.forEach((name, i) => {
+    const box = document.getElementById("color-box-" + name);
+    box.style.boxShadow = "0 0 8px " + stages[i].color;
+  });
+}
+
+}
+
+
+  // Update input colours
+  inputs.connect.style.color = stages[0].color;
+  inputs.outcome.style.color = stages[1].color;
+  inputs.awareness.style.color = stages[2].color;
+  inputs.course.style.color = stages[3].color;
+  inputs.highlights.style.color = stages[4].color;
+
+  // Control buttons
+  [startStopButton, resetButton].forEach(btn => {
+    btn.style.color = themeColor;
+    btn.style.borderColor = themeColor;
+    btn.style.textShadow = "0 0 5px " + themeColor;
+  });
+}
+
+  function startTimer() {
+    if (remainingSeconds <= 0) return;
+    isRunning = true;
+    startStopButton.textContent = "Stop";
+    Object.values(inputs).forEach(input => input.disabled = true);
+timerInterval = setInterval(() => {
+  remainingSeconds--;
+
+  // If time is negative, set text to red
+  if (remainingSeconds < 0) {
+    timerDisplay.style.color = "#FF0000";
+    timerDisplay.style.border = "2px solid #FF0000";
+    timerDisplay.style.textShadow = "0 0 6px #FF0000";
+    progressBar.style.backgroundColor = "#FF0000";
+  }
+
+  updateTimerDisplay();
+}, 1000);
+
+  }
+
+  function stopTimer() {
+    isRunning = false;
+    startStopButton.textContent = "Start";
+    clearInterval(timerInterval);
+    Object.values(inputs).forEach(input => input.disabled = false);
+  }
+
+  function resetTimer() {
+    stopTimer();
+    recalcTimer();
+  }
+
+  startStopButton.addEventListener("click", () => !isRunning ? startTimer() : stopTimer());
+  resetButton.addEventListener("click", resetTimer);
+  Object.values(inputs).forEach(input => input.addEventListener("input", () => { if (!isRunning) recalcTimer(); }));
+
+  recalcTimer();
+
+  const stageNames = ["connect","outcome","awareness","course","highlights"];
+  stageNames.forEach((name, i) => {
+    const picker = document.getElementById("color-picker-" + name);
+    const box = document.getElementById("color-box-" + name);
+    const subTitle = document.getElementById("sub-title-" + name);
+
+    box.style.boxShadow = "0 0 8px " + stages[i].color;
+    subTitle.style.color = stages[i].color;
+
+    box.addEventListener("click", () => picker.click());
+
+    picker.addEventListener("input", () => {
+      const newColor = picker.value;
+      box.style.backgroundColor = newColor;
+      box.style.boxShadow = "0 0 8px " + newColor;
+      stages[i].color = newColor;
+      subTitle.style.color = newColor;
+      updateTimerDisplay();
+
+      if(name === "connect") {
+        themeColor = newColor;
+        updateTimerDisplay();
+      }
+    });
+  });
+
+  const presets = {
+    presetTop:    { connect: 1, outcome: 2, awareness: 7, course: 2, highlights: 3 },
+    presetLeft:   { connect: 3, outcome: 5, awareness: 15, course: 5, highlights: 2 },
+    presetRight:  { connect: 4, outcome: 8, awareness: 22, course: 8, highlights: 3 },
+    presetBottom: { connect: 5, outcome: 10, awareness: 30, course: 10, highlights: 5 }
+  };
+
+  function applyPreset(preset) {
+    stopTimer();
+    Object.entries(preset).forEach(([key, val]) => inputs[key].value = val);
+    recalcTimer();
+  }
+
+  function shiftToTheme(newTheme) {
+    let shift = 0;
+    if (newTheme === "#008000") shift = 0;
+    else if (newTheme === "#1F51FF") shift = 4;
+    else if (newTheme === "#FF4DAB") shift = 3;
+    else if (newTheme === "#FFA500") shift = 2;
+
+    for(let i = 0; i < stages.length; i++) {
+      stages[i].color = defaultOrder[(i + shift) % defaultOrder.length];
+    }
+
+    stageNames.forEach((name, i) => {
+      const picker = document.getElementById("color-picker-" + name);
+      const box = document.getElementById("color-box-" + name);
+      const subTitle = document.getElementById("sub-title-" + name);
+
+      picker.value = stages[i].color;
+      box.style.backgroundColor = stages[i].color;
+      box.style.boxShadow = "0 0 8px " + stages[i].color;
+      subTitle.style.color = stages[i].color;
+      inputs[name].style.color = stages[i].color;
+    });
+
+    updateTimerDisplay();
+  }
+
+  document.getElementById("preset-top").addEventListener("click", function(){
+    themeColor = this.getAttribute("data-theme");
+    shiftToTheme(themeColor);
+    applyPreset(presets.presetTop);
+  });
+  document.getElementById("preset-left").addEventListener("click", function(){
+    themeColor = this.getAttribute("data-theme");
+    shiftToTheme(themeColor);
+    applyPreset(presets.presetLeft);
+  });
+  document.getElementById("preset-right").addEventListener("click", function(){
+    themeColor = this.getAttribute("data-theme");
+    shiftToTheme(themeColor);
+    applyPreset(presets.presetRight);
+  });
+  document.getElementById("preset-bottom").addEventListener("click", function(){
+    themeColor = this.getAttribute("data-theme");
+    shiftToTheme(themeColor);
+    applyPreset(presets.presetBottom);
+  });
+
+  document.querySelectorAll(".theme-box").forEach(box => {
+    box.addEventListener("click", () => {
+      const newTheme = box.getAttribute("data-theme");
+      shiftToTheme(newTheme);
+      themeColor = newTheme;
+    });
+  });
+
+  // Initialize default pink theme
+  shiftToTheme(themeColor);
+  updateTimerDisplay();
+</script>
+</body>
+</html>
