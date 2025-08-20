@@ -462,26 +462,6 @@ if (remainingSeconds <= 0) {
   timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
   progressBar.style.backgroundColor = dynamicColor;
 
-  // While running: only the active stage glows. When stopped: restore all glows.
-if (isRunning) {
-  let elapsedNow = totalSeconds - remainingSeconds;
-  let cum = 0, activeIndex = -1;
-  for (let i = 0; i < stages.length; i++) {
-    cum += stages[i].duration;
-    if (elapsedNow < cum) { activeIndex = i; break; }
-  }
-  stageNames.forEach((name, i) => {
-    const box = document.getElementById("color-box-" + name);
-    box.style.boxShadow = (i === activeIndex) ? ("0 0 8px " + stages[i].color) : "none";
-  });
-} else {
-  // Not running → keep original look (all boxes glow with their colour)
-  stageNames.forEach((name, i) => {
-    const box = document.getElementById("color-box-" + name);
-    box.style.boxShadow = "0 0 8px " + stages[i].color;
-  });
-}
-
 }
 
 
