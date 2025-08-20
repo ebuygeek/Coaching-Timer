@@ -366,7 +366,10 @@
     </div>
   </div>
   
-  <script>
+    <!-- Alarm audio: place alarm.mp3 next to this HTML -->
+  <audio id="endAlarm" preload="auto" src="alarm.mp3"></audio>
+
+<script>
   let timerInterval = null;
   let isRunning = false;
   let totalSeconds = 0;
@@ -406,7 +409,11 @@
   const startStopButton = document.getElementById('startStopButton');
   const resetButton = document.getElementById('resetButton');
 
-  function recalcTimer() {
+  
+  // Alarm element and state
+  const endAlarm = document.getElementById('endAlarm');
+  let alarmPlayed = false;
+function recalcTimer() {
     stages[0].duration = (parseInt(inputs.connect.value, 10) || 0) * 60;
     stages[1].duration = (parseInt(inputs.outcome.value, 10) || 0) * 60;
     stages[2].duration = (parseInt(inputs.awareness.value, 10) || 0) * 60;
@@ -482,13 +489,31 @@ if (remainingSeconds <= 0) {
 
   function startTimer() {
     if (remainingSeconds <= 0) return;
-    isRunning = true;
+    
+    // Reset alarm flag and prime audio on Start (user gesture)
+    alarmPlayed = false;
+    try {
+      var primed = endAlarm && endAlarm.play && endAlarm.play();
+      if (primed && typeof primed.then === 'function') {
+        primed.then(function(){ endAlarm.pause(); endAlarm.currentTime = 0; }).catch(function(){});
+      }
+    } catch(e) {}
+isRunning = true;
     startStopButton.textContent = "Stop";
     Object.values(inputs).forEach(input => input.disabled = true);
 timerInterval = setInterval(() => {
   remainingSeconds--;
 
-  // If time is negative, set text to red
+  
+        // Play alarm once at 0
+        if (remainingSeconds === 0 && !alarmPlayed) {
+          alarmPlayed = true;
+          try {
+            var p = endAlarm && endAlarm.play && endAlarm.play();
+            if (p && typeof p.catch === 'function') { p.catch(function(){}); }
+          } catch(e) {}
+        }
+// If time is negative, set text to red
   if (remainingSeconds < 0) {
     timerDisplay.style.color = "#FF0000";
     timerDisplay.style.border = "2px solid #FF0000";
@@ -510,7 +535,11 @@ timerInterval = setInterval(() => {
 
   function resetTimer() {
     stopTimer();
-    recalcTimer();
+    
+    // Reset alarm audio/flag
+    try { if (endAlarm) { endAlarm.pause(); endAlarm.currentTime = 0; } } catch(e) {}
+    alarmPlayed = false;
+recalcTimer();
   }
 
   startStopButton.addEventListener("click", () => !isRunning ? startTimer() : stopTimer());
