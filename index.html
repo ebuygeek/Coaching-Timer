@@ -446,34 +446,33 @@ if (remainingSeconds <= 0) {
 } else {
 
   // Normal dynamic colour logic
-  let elapsed = totalSeconds - remainingSeconds;
-  let cumulative = 0;
-  let dynamicColor = "white";
-  for (let stage of stages) {
-    cumulative += stage.duration;
-    if (elapsed < cumulative) {
-      dynamicColor = stage.color;
-      break;
-    }
-  }
+let elapsed = totalSeconds - remainingSeconds;
+let cumulative = 0;
+let dynamicColor = "white";
+let activeIndex = -1;
 
-  timerDisplay.style.color = dynamicColor;
-  timerDisplay.style.border = "2px solid " + dynamicColor;
-  timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
-  progressBar.style.backgroundColor = dynamicColor;
-
-  // Only the active stage's color box glows (others: no glow)
-let elapsed2 = totalSeconds - remainingSeconds;
-let cum2 = 0, activeIndex = -1;
 for (let i = 0; i < stages.length; i++) {
-  cum2 += stages[i].duration;
-  if (elapsed2 < cum2) { activeIndex = i; break; }
+  cumulative += stages[i].duration;
+  if (elapsed < cumulative) {
+    dynamicColor = stages[i].color;
+    activeIndex = i;
+    break;
+  }
 }
-stageNames.forEach((name, i) => {
-  const box = document.getElementById("color-box-" + name);
-  box.style.boxShadow = (i === activeIndex) ? ("0 0 8px " + stages[i].color) : "none";
-});
 
+timerDisplay.style.color = dynamicColor;
+timerDisplay.style.border = "2px solid " + dynamicColor;
+timerDisplay.style.textShadow = "0 0 6px " + dynamicColor;
+progressBar.style.backgroundColor = dynamicColor;
+
+// Only the active stage's color box glows (others off)
+// (Do nothing if activeIndex === -1 to avoid changing initial look when totalSeconds is 0)
+if (activeIndex !== -1) {
+  stageNames.forEach((name, i) => {
+    const box = document.getElementById("color-box-" + name);
+    box.style.boxShadow = (i === activeIndex) ? ("0 0 8px " + stages[i].color) : "none";
+  });
+}
 }
 
 
