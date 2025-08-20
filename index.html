@@ -29,17 +29,17 @@
     
     /* Timer display */
     #timerDisplay {
-      background-color: #000;
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(2.5em, 15vw, 6em); /* scales down on mobile */
-      padding: 20px;
-      box-sizing: border-box;
-      text-align: center;
-      line-height: 1.2;
-      max-width: 100%;
-      white-space: nowrap;   /* keep timer on one line */
-      overflow: hidden;      /* prevent spillover */
-    }
+  background-color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2.2em, 12.5vw, 6em); /* handles normal and minus */
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: visible;
+}
     
     /* Progress bar */
     #progressBar {
@@ -193,11 +193,9 @@
     /* Mobile optimization */
     @media (max-width: 480px) {
       #timerDisplay {
-    font-size: clamp(2.2em, 13.5vw, 5.5em) !important; /* beat inline 6em */
-    padding: 10px 24px;     /* a touch more right room for the glow */
-    white-space: nowrap;     /* keep on one line */
-    overflow: visible;       /* don't clip the right edge */
-  }
+        font-size: 4em;
+        padding: 10px;
+      }
       #progressBar {
         height: 8px;
       }
