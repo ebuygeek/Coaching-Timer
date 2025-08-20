@@ -193,9 +193,11 @@
     /* Mobile optimization */
     @media (max-width: 480px) {
       #timerDisplay {
-        font-size: 4em;
-        padding: 10px;
-      }
+    font-size: clamp(2.2em, 13.5vw, 5.5em) !important; /* beat inline 6em */
+    padding: 10px 24px;     /* a touch more right room for the glow */
+    white-space: nowrap;     /* keep on one line */
+    overflow: visible;       /* don't clip the right edge */
+  }
       #progressBar {
         height: 8px;
       }
