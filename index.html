@@ -236,22 +236,17 @@
       }
     }
 
-    /* NEW: Sound toggle button anchored inside the timer box */
-    #soundToggleBtn {
-      position: absolute;   /* inside #timerContainer */
-      top: 8px;
-      right: 8px;
-      background: transparent;
-      border: 0;
-      font-size: 26px;
-      cursor: pointer;
-      user-select: none;
-      padding: 0;
-      margin: 0;
-      line-height: 1;
-      z-index: 10;
-      text-shadow: 0 0 6px currentColor;
-    }
+    /* NEW: Sound toggle button */
+  #soundToggleBtn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  margin-left: 15px; /* space from Reset */
+  line-height: 1;
+  text-shadow: 0 0 6px currentColor;
+}
   </style>
 
   <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
@@ -328,10 +323,12 @@
   </div>
   
   <!-- Main control buttons -->
-  <div class="control-buttons">
-    <button class="main-button" id="startStopButton">Start</button>
-    <button class="main-button" id="resetButton">Reset</button>
-  </div>
+    <div class="control-buttons">
+      <button class="main-button" id="startStopButton">Start</button>
+      <button class="main-button" id="resetButton">Reset</button>
+      <!-- NEW: Sound toggle now sits to the right of Reset -->
+      <button id="soundToggleBtn" title="Toggle sound">🔊</button>
+</div>
   
   <!-- Preset section wrapper -->
   <div id="presetWrapper">
