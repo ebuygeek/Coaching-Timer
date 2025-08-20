@@ -31,10 +31,14 @@
     #timerDisplay {
       background-color: #000;
       font-family: 'Orbitron', sans-serif;
-      font-size: 6em;
+      font-size: clamp(2.5em, 15vw, 6em); /* scales with screen width */
       padding: 20px;
       box-sizing: border-box;
       text-align: center;
+      line-height: 1.2;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      max-width: 100%;
     }
     
     /* Progress bar */
